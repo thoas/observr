@@ -17,11 +17,17 @@ type Worker struct {
 	timeout   time.Duration
 }
 
-func New(addr string, logger *logrus.Logger, consumers ...*nsq.Consumer) (*Worker, error) {
+func New(tcpAddrs []string, httpAddrs []string, logger *logrus.Logger, consumers ...*nsq.Consumer) (*Worker, error) {
 	wg := &sync.WaitGroup{}
 
 	for _, consumer := range consumers {
-		err := consumer.ConnectToNSQD(addr)
+		err := consumer.ConnectToNSQDs(tcpAddrs)
+
+		if err != nil {
+			return nil, err
+		}
+
+		err = consumer.ConnectToNSQLookupds(httpAddrs)
 
 		if err != nil {
 			return nil, err

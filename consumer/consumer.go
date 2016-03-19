@@ -12,12 +12,13 @@ type Consumer struct {
 }
 
 type Option struct {
-	Topic    string
-	Channel  string
-	Addr     string
-	Config   *nsq.Config
-	Logger   *logrus.Logger
-	Handlers []nsq.HandlerFunc
+	Topic     string
+	Channel   string
+	TcpAddrs  []string
+	HTTPAddrs []string
+	Config    *nsq.Config
+	Logger    *logrus.Logger
+	Handlers  []nsq.HandlerFunc
 }
 
 func NewConsumer(option *Option) (*Consumer, error) {
@@ -31,7 +32,7 @@ func NewConsumer(option *Option) (*Consumer, error) {
 		consumer.AddHandler(f)
 	}
 
-	worker, err := worker.New(option.Addr, option.Logger, consumer)
+	worker, err := worker.New(option.TcpAddrs, option.HTTPAddrs, option.Logger, consumer)
 
 	if err != nil {
 		return nil, err

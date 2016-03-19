@@ -4,12 +4,13 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/nsqio/go-nsq"
 	"github.com/thoas/observr/consumer"
+	"github.com/thoas/observr/events"
 	"github.com/thoas/observr/store"
 )
 
 type Application struct {
 	DataStore  *store.DataStore
-	EventStore *store.EventStore
+	EventStore *events.EventStore
 	Consumer   *consumer.Consumer
 	Logger     *logrus.Logger
 }
@@ -35,14 +36,16 @@ func New() (*Application, error) {
 
 	config := nsq.NewConfig()
 
-	addr := "127.0.0.1:4150"
+	tcpAddr := "127.0.0.1:4150"
+
+	httpAddr := "127.0.0.1:4161"
 
 	consumer, err := consumer.NewConsumer(&consumer.Option{
-		Addr:    addr,
-		Topic:   "test",
-		Channel: "observr",
-		Logger:  logger,
-		Config:  config,
+		HTTPAddrs: []string{httpAddr},
+		Topic:     "test",
+		Channel:   "observr",
+		Logger:    logger,
+		Config:    config,
 		Handlers: []nsq.HandlerFunc{
 			app.Handle(TestHandler),
 		},
@@ -54,7 +57,7 @@ func New() (*Application, error) {
 
 	app.Consumer = consumer
 
-	eventStore, err := store.NewEventStore(addr, config)
+	eventStore, err := events.NewEventStore(tcpAddr, config)
 
 	if err != nil {
 		return nil, err

@@ -1,9 +1,9 @@
-package store
+package events
 
 import (
 	"encoding/json"
+
 	"github.com/nsqio/go-nsq"
-	"github.com/thoas/observr/events"
 )
 
 type EventStore struct {
@@ -28,7 +28,7 @@ func NewEventStore(addr string, config *nsq.Config) (*EventStore, error) {
 	}, nil
 }
 
-func (ns *EventStore) Publish(event events.Event) error {
+func (ns *EventStore) Publish(event Event) error {
 	msg, err := json.Marshal(event)
 	if err != nil {
 		return err
