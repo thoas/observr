@@ -2,6 +2,7 @@ package store
 
 import (
 	"github.com/hailocab/gocassa"
+	"github.com/thoas/observr/config"
 	"github.com/thoas/observr/store/models"
 )
 
@@ -63,4 +64,13 @@ func (s *DataStore) Models() []models.Model {
 		models.VisitTag{},
 		models.Tag{},
 	}
+}
+
+func Load(cfg config.Data) (*DataStore, error) {
+	option := &Option{
+		Name: cfg.Name,
+		Ips:  cfg.Nodes,
+	}
+
+	return NewDataStore(option)
 }

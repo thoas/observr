@@ -1,37 +1,65 @@
 package worker
 
 import (
-	"github.com/Sirupsen/logrus"
-	"github.com/nsqio/go-nsq"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 	"time"
+
+	"golang.org/x/net/context"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/nsqio/go-nsq"
+	"github.com/thoas/observr/application"
+	"github.com/thoas/observr/config"
+	"github.com/thoas/observr/logger"
 )
 
 type Worker struct {
 	wg        *sync.WaitGroup
-	consumers []*nsq.Consumer
-	logger    *logrus.Logger
+	consumers []*Consumer
+	ctx       context.Context
 	timeout   time.Duration
 }
 
-func New(tcpAddrs []string, httpAddrs []string, logger *logrus.Logger, consumers ...*nsq.Consumer) (*Worker, error) {
+func Load(path string) (*Worker, error) {
+	ctx, err := application.Load(path)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return New(ctx)
+}
+
+func New(ctx context.Context) (*Worker, error) {
 	wg := &sync.WaitGroup{}
 
-	for _, consumer := range consumers {
-		err := consumer.ConnectToNSQDs(tcpAddrs)
+	cfg := config.FromContext(ctx)
+
+	nsqConfig := nsq.NewConfig()
+
+	tasks := map[string]Handler{
+		"test": TestHandler,
+	}
+
+	var consumers []*Consumer
+
+	for name, handler := range tasks {
+		consumer, err := NewConsumer(name, "tasks", nsqConfig, ctx, handler)
 
 		if err != nil {
 			return nil, err
 		}
 
-		err = consumer.ConnectToNSQLookupds(httpAddrs)
+		err = consumer.ConnectToNSQLookupds(cfg.Events.Consumer)
 
 		if err != nil {
 			return nil, err
 		}
+
+		consumers = append(consumers, consumer)
 
 		wg.Add(1)
 	}
@@ -39,7 +67,7 @@ func New(tcpAddrs []string, httpAddrs []string, logger *logrus.Logger, consumers
 	return &Worker{
 		wg,
 		consumers,
-		logger,
+		ctx,
 		1 * time.Minute,
 	}, nil
 }
@@ -51,20 +79,23 @@ func (w *Worker) Run() {
 	go func() {
 		for {
 			sig := <-c
-			w.logger.WithFields(logrus.Fields{
+
+			log := logger.FromContext(w.ctx)
+
+			log.WithFields(logrus.Fields{
 				"signal": sig,
 			}).Info("receive signal")
 
 			for _, c := range w.consumers {
-				w.logger.Info("stopping consumer... ")
+				log.Info("stopping consumer... ")
 				c.Stop()
 
 				select {
 				case <-c.StopChan:
-					w.logger.Info("consumer stopped")
+					log.Info("consumer stopped")
 					w.wg.Done()
 				case <-time.After(w.timeout):
-					w.logger.WithFields(logrus.Fields{
+					log.WithFields(logrus.Fields{
 						"timeout": w.timeout,
 					}).Warn("timeout while stopping consumer")
 				}

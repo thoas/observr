@@ -1,14 +1,17 @@
-package application
+package worker
 
 import (
 	"encoding/json"
 	"fmt"
+
+	"golang.org/x/net/context"
+
 	"github.com/nsqio/go-nsq"
 )
 
-type Handler func(app *Application, message *nsq.Message) error
+type Handler func(message *nsq.Message, ctx context.Context) error
 
-var TestHandler Handler = func(app *Application, message *nsq.Message) error {
+var TestHandler Handler = func(message *nsq.Message, ctx context.Context) error {
 	var result struct {
 		Foo string `json:"foo"`
 	}
