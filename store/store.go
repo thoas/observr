@@ -2,6 +2,7 @@ package store
 
 import (
 	"database/sql"
+	"fmt"
 
 	_ "github.com/lib/pq"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/thoas/observr/configuration"
+	"github.com/thoas/observr/store/models"
 )
 
 type DataStore struct {
@@ -38,9 +40,38 @@ func Load(cfg configuration.Data) (*DataStore, error) {
 	return NewDataStore(cfg)
 }
 
+var Models = []models.Model{
+	&models.VisitTag{},
+	&models.GroupTag{},
+	&models.Tag{},
+	&models.Visit{},
+	&models.Project{},
+	&models.User{},
+}
+
 // Connection returns SQLStore current connection.
 func (s *DataStore) Connection() sqalx.Node {
 	return s.connection
+}
+
+func (s *DataStore) Close() error {
+	return s.Connection().Close()
+}
+
+func (s *DataStore) Flush() error {
+	for _, model := range Models {
+		tableName := model.TableName()
+
+		row, err := s.Connection().Query(fmt.Sprintf("TRUNCATE %s CASCADE", tableName))
+
+		if err != nil {
+			return errors.Wrap(err, fmt.Sprintf("cannot truncate %s", tableName))
+		}
+
+		defer row.Close()
+	}
+
+	return nil
 }
 
 // Ping pings the storage to know if it's alive.

@@ -19,6 +19,16 @@ from sqlalchemy.dialects.postgresql import UUID, JSON
 
 
 def upgrade():
+    op.create_table('observr_user',
+        sa.Column('id', UUID, primary_key=True),
+        sa.Column('username', sa.String(255), nullable=False),
+        sa.Column('email', sa.String(255), nullable=False),
+        sa.Column('password', sa.String(255), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
+    )
+
     op.create_table('observr_project',
         sa.Column('id', UUID, primary_key=True),
         sa.Column('name', sa.String(255), nullable=False),
@@ -27,6 +37,7 @@ def upgrade():
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
         sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
+        sa.Column('user_id', UUID, sa.ForeignKey('observr_user.id', ondelete="CASCADE"), nullable=False),
     )
 
     op.create_table('observr_visit',
@@ -81,3 +92,4 @@ def downgrade():
     op.drop_table('observr_tag')
     op.drop_table('observr_visit')
     op.drop_table('observr_project')
+    op.drop_table('observr_user')

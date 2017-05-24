@@ -14,6 +14,8 @@ type Project struct {
 	CreatedAt time.Time   `db:"created_at"`
 	UpdatedAt time.Time   `db:"updated_at"`
 	DeletedAt pq.NullTime `db:"deleted_at"`
+	UserID    string      `db:"user_id"`
+	User      *User       `db:"observr_user"`
 }
 
 func (Project) TableName() string {

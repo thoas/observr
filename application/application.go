@@ -30,10 +30,21 @@ func Load(path string) (context.Context, error) {
 		return nil, err
 	}
 
-	ctx := store.NewContext(context.Background(), *dataStore)
+	ctx := store.NewContext(context.Background(), dataStore)
 	ctx = broker.NewContext(ctx, b)
 	ctx = logger.NewContext(ctx, *log)
 	ctx = configuration.NewContext(ctx, *cfg)
 
 	return ctx, nil
+}
+
+func Shutdown(ctx context.Context) error {
+	s := store.FromContext(ctx)
+
+	err := s.Flush()
+	if err != nil {
+		return err
+	}
+
+	return s.Close()
 }

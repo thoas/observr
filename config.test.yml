@@ -1,0 +1,7 @@
+server:
+  port: 4001
+  debug: false
+data:
+  DSN: "postgres://observr:observr@127.0.0.1:5432/observr_test?sslmode=disable"
+broker:
+  URI: "amqp://observr:observr@127.0.0.1:5672/observr"
