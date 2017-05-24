@@ -2,27 +2,35 @@ package worker
 
 import (
 	"encoding/json"
-	"fmt"
 
-	"golang.org/x/net/context"
+	"github.com/davecgh/go-spew/spew"
+	"github.com/thoas/observr/broker"
 
-	"github.com/nsqio/go-nsq"
+	"context"
 )
 
-type Handler func(message *nsq.Message, ctx context.Context) error
+type Handler func(context.Context, []byte) error
 
-var TestHandler Handler = func(message *nsq.Message, ctx context.Context) error {
-	var result struct {
-		Foo string `json:"foo"`
+// ErrorHandler is the error handler.
+func ErrorHandler(handler Handler) broker.Handler {
+	return func(ctx context.Context, message []byte) {
+		err := handler(ctx, message)
+		if err != nil {
+			panic(err)
+		}
 	}
+}
 
-	err := json.Unmarshal(message.Body, &result)
+func UserCreatedHandler(ctx context.Context, message []byte) error {
+	var result broker.UserCreatedEvent
+
+	err := json.Unmarshal(message, &result)
 
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(result.Foo)
+	spew.Dump(result)
 
 	return nil
 }

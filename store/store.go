@@ -1,76 +1,65 @@
 package store
 
 import (
-	"github.com/hailocab/gocassa"
+	"database/sql"
+
+	_ "github.com/lib/pq"
+
+	"github.com/heetch/sqalx"
+	"github.com/jmoiron/sqlx"
+	"github.com/pkg/errors"
 	"github.com/thoas/observr/config"
-	"github.com/thoas/observr/store/models"
 )
 
 type DataStore struct {
-	KeySpace gocassa.KeySpace
-	Tables   map[string]gocassa.Table
+	connection sqalx.Node
 }
 
-type Option struct {
-	Name     string
-	Ips      []string
-	Username string
-	Password string
-}
-
-func NewDataStore(option *Option) (*DataStore, error) {
-	keySpace, err := gocassa.ConnectToKeySpace(option.Name, option.Ips, option.Username, option.Password)
-
+func NewDataStore(cfg config.Data) (*DataStore, error) {
+	dbx, err := sqlx.Connect("postgres", cfg.DSN)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "cannot connect to postgres server")
 	}
 
-	keySpace.DebugMode(true)
+	dbx.SetMaxIdleConns(cfg.MaxIdleConnections)
+	dbx.SetMaxOpenConns(cfg.MaxOpenConnections)
 
-	tables := make(map[string]gocassa.Table)
-
-	store := &DataStore{KeySpace: keySpace}
-
-	for _, model := range store.Models() {
-		table := store.KeySpace.Table(model.TableName(), model, gocassa.Keys{
-			PartitionKeys: model.PartitionKeys(),
-		}).WithOptions(gocassa.Options{
-			TableName: model.TableName(),
-		})
-
-		tables[model.TableName()] = table
+	node, err := sqalx.New(dbx)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot instantiate postgres client driver")
 	}
 
-	store.Tables = tables
-
-	return store, nil
-}
-
-func (s *DataStore) RecreateTables() error {
-	for _, table := range s.Tables {
-		err := table.Recreate()
-
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (s *DataStore) Models() []models.Model {
-	return []models.Model{
-		models.Visit{},
-		models.VisitTag{},
-		models.Tag{},
-	}
+	return &DataStore{
+		connection: node,
+	}, nil
 }
 
 func Load(cfg config.Data) (*DataStore, error) {
-	option := &Option{
-		Name: cfg.Name,
-		Ips:  cfg.Nodes,
-	}
+	return NewDataStore(cfg)
+}
 
-	return NewDataStore(option)
+// Connection returns SQLStore current connection.
+func (s *DataStore) Connection() sqalx.Node {
+	return s.connection
+}
+
+// Ping pings the storage to know if it's alive.
+func (s *DataStore) Ping() error {
+	row, err := s.Connection().Query("SELECT true")
+	if row != nil {
+		defer func() {
+			// Cannot captures or logs this error.
+			thr := row.Close()
+			_ = thr
+		}()
+	}
+	if err != nil {
+		return errors.Wrap(err, "cannot ping database")
+	}
+	return nil
+}
+
+// IsErrNoRows returns if given error is a "no rows" error.
+func IsErrNoRows(err error) bool {
+	return errors.Cause(err) == sql.ErrNoRows
 }

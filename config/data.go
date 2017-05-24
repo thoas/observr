@@ -1,6 +1,7 @@
 package config
 
 type Data struct {
-	Name  string
-	Nodes []string
+	DSN                string
+	MaxIdleConnections int
+	MaxOpenConnections int
 }

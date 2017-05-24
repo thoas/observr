@@ -1,0 +1,4 @@
+data:
+  DSN: "postgres://observr:observr@127.0.0.1:5432/observr?sslmode=disable"
+broker:
+  URI: "amqp://observr:observr@127.0.0.1:5672/observr"

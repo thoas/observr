@@ -4,7 +4,7 @@ import "github.com/spf13/viper"
 
 type Config struct {
 	Data   Data
-	Events Events
+	Broker Broker
 }
 
 func Load(path string) (*Config, error) {

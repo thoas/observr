@@ -5,8 +5,8 @@ import (
 
 	"github.com/codegangsta/cli"
 	"github.com/thoas/observr/application"
+	"github.com/thoas/observr/broker"
 	"github.com/thoas/observr/config"
-	"github.com/thoas/observr/events"
 	"github.com/thoas/observr/worker"
 )
 
@@ -38,18 +38,7 @@ func main() {
 			Name:    "worker",
 			Aliases: []string{"w"},
 			Usage:   "Start workers",
-			Action: func(c *cli.Context) {
-				worker, err := worker.Load(c.String("config"))
-
-				if err != nil {
-					panic(err)
-				}
-
-				worker.Run()
-			},
-		},
-		{
-			Name: "producer",
+			Flags:   flags,
 			Action: func(c *cli.Context) {
 				ctx, err := application.Load(c.String("config"))
 
@@ -57,9 +46,22 @@ func main() {
 					panic(err)
 				}
 
-				events := events.FromContext(ctx)
+				worker.Run(ctx)
+			},
+		},
+		{
+			Name:    "producer",
+			Aliases: []string{"p"},
+			Flags:   flags,
+			Action: func(c *cli.Context) {
+				ctx, err := application.Load(c.String("config"))
 
-				events.Producer.Publish("test", []byte(`{"foo": "bar"}`))
+				if err != nil {
+					panic(err)
+				}
+
+				b := broker.FromContext(ctx)
+				b.Publish(ctx, &broker.UserCreatedEvent{Username: "thoas"})
 			},
 		},
 	}

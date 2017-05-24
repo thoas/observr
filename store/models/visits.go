@@ -1,12 +1,11 @@
 package models
 
 import (
-	"github.com/gocql/gocql"
 	"time"
 )
 
 type Visit struct {
-	Id          gocql.UUID
+	Id          string
 	Host        string
 	Path        string
 	RemoteAddr  string
@@ -19,14 +18,10 @@ type Visit struct {
 	Cookies     string
 	Referer     string
 	QueryString string
-	ProjectId   gocql.UUID
+	ProjectId   string
 	CreatedAt   time.Time
 }
 
 func (m Visit) TableName() string {
-	return "visits"
-}
-
-func (m Visit) PartitionKeys() []string {
-	return []string{"Id"}
+	return "observr_visit"
 }
