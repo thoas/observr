@@ -6,7 +6,7 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/thoas/observr/application"
 	"github.com/thoas/observr/broker"
-	"github.com/thoas/observr/config"
+	"github.com/thoas/observr/web"
 	"github.com/thoas/observr/worker"
 )
 
@@ -27,11 +27,13 @@ func main() {
 			Usage:   "Start application",
 			Flags:   flags,
 			Action: func(c *cli.Context) {
-				_, err := config.Load(c.String("config"))
+				ctx, err := application.Load(c.String("config"))
 
 				if err != nil {
 					panic(err)
 				}
+
+				web.Run(ctx)
 			},
 		},
 		{

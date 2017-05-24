@@ -8,14 +8,14 @@ import (
 	"github.com/heetch/sqalx"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
-	"github.com/thoas/observr/config"
+	"github.com/thoas/observr/configuration"
 )
 
 type DataStore struct {
 	connection sqalx.Node
 }
 
-func NewDataStore(cfg config.Data) (*DataStore, error) {
+func NewDataStore(cfg configuration.Data) (*DataStore, error) {
 	dbx, err := sqlx.Connect("postgres", cfg.DSN)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot connect to postgres server")
@@ -34,7 +34,7 @@ func NewDataStore(cfg config.Data) (*DataStore, error) {
 	}, nil
 }
 
-func Load(cfg config.Data) (*DataStore, error) {
+func Load(cfg configuration.Data) (*DataStore, error) {
 	return NewDataStore(cfg)
 }
 

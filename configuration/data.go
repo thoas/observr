@@ -1,4 +1,4 @@
-package config
+package configuration
 
 type Data struct {
 	DSN                string

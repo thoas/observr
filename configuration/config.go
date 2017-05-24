@@ -1,14 +1,15 @@
-package config
+package configuration
 
 import "github.com/spf13/viper"
 
-type Config struct {
+type Configuration struct {
 	Data   Data
 	Broker Broker
+	Server Server
 }
 
-func Load(path string) (*Config, error) {
-	config := Config{}
+func Load(path string) (*Configuration, error) {
+	cfg := Configuration{}
 
 	viper.SetConfigFile(path)
 	err := viper.ReadInConfig()
@@ -16,10 +17,10 @@ func Load(path string) (*Config, error) {
 		return nil, err
 	}
 
-	err = viper.Unmarshal(&config)
+	err = viper.Unmarshal(&cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	return &config, nil
+	return &cfg, nil
 }

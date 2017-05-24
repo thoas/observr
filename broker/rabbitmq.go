@@ -8,7 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/streadway/amqp"
-	"github.com/thoas/observr/config"
+	"github.com/thoas/observr/configuration"
 	"github.com/ulule/amqpx"
 )
 
@@ -25,7 +25,7 @@ type AMQPBroker struct {
 }
 
 // NewAMQPBroker creates an AMQP broker
-func NewAMQPBroker(cfg config.Broker) (*AMQPBroker, error) {
+func NewAMQPBroker(cfg configuration.Broker) (*AMQPBroker, error) {
 	pool, err := amqpx.NewChannelPool(func() (*amqp.Connection, error) {
 		return amqp.Dial(cfg.URI)
 	}, amqpx.Bounds(25, 50))

@@ -3,7 +3,7 @@ package broker
 import (
 	"context"
 
-	"github.com/thoas/observr/config"
+	"github.com/thoas/observr/configuration"
 )
 
 type Event interface {
@@ -19,6 +19,6 @@ type Broker interface {
 	Stop()
 }
 
-func Load(cfg config.Broker) (Broker, error) {
+func Load(cfg configuration.Broker) (Broker, error) {
 	return NewAMQPBroker(cfg)
 }

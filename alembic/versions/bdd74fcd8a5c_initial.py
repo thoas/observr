@@ -33,6 +33,7 @@ def upgrade():
         sa.Column('id', UUID, primary_key=True),
         sa.Column('host', sa.String(255), nullable=False),
         sa.Column('path', sa.String(2048), nullable=True),
+        sa.Column('referer', sa.String(255), nullable=True),
         sa.Column('remote_addr', sa.String(255), nullable=False),
         sa.Column('method', sa.String(10), nullable=False),
         sa.Column('user_agent', sa.String(255), nullable=True),

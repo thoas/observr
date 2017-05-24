@@ -4,13 +4,13 @@ import (
 	"context"
 
 	"github.com/thoas/observr/broker"
-	"github.com/thoas/observr/config"
+	"github.com/thoas/observr/configuration"
 	"github.com/thoas/observr/logger"
 	"github.com/thoas/observr/store"
 )
 
 func Load(path string) (context.Context, error) {
-	cfg, err := config.Load(path)
+	cfg, err := configuration.Load(path)
 
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func Load(path string) (context.Context, error) {
 	ctx := store.NewContext(context.Background(), *dataStore)
 	ctx = broker.NewContext(ctx, b)
 	ctx = logger.NewContext(ctx, *log)
-	ctx = config.NewContext(ctx, *cfg)
+	ctx = configuration.NewContext(ctx, *cfg)
 
 	return ctx, nil
 }

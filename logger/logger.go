@@ -1,7 +1,9 @@
 package logger
 
-import "github.com/Sirupsen/logrus"
+import "go.uber.org/zap"
 
-func Load() *logrus.Logger {
-	return logrus.New()
+func Load() *zap.Logger {
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+	return logger
 }
