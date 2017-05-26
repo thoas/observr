@@ -1,9 +1,13 @@
 package handlers
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
 
-func HealthcheckHandler(c *gin.Context) error {
-	c.JSON(200, gin.H{
+	"github.com/gin-gonic/gin"
+)
+
+func Healthcheck(c *gin.Context) error {
+	c.JSON(http.StatusOK, gin.H{
 		"message": "Ok",
 	})
 

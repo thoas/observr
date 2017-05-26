@@ -6,7 +6,7 @@ import (
 )
 
 type Visit struct {
-	Id          string         `db:"id"`
+	ID          string         `db:"id"`
 	Host        string         `db:"host"`
 	Path        string         `db:"path"`
 	RemoteAddr  string         `db:"remote_addr"`
@@ -19,7 +19,7 @@ type Visit struct {
 	Cookies     sql.NullString `db:"cookies"`
 	Referer     sql.NullString `db:"referer"`
 	QueryString sql.NullString `db:"query_string"`
-	ProjectId   string         `db:"project_id"`
+	ProjectID   string         `db:"project_id"`
 	Project     *Project       `db:"observr_project"`
 	CreatedAt   time.Time      `db:"created_at"`
 }

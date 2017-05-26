@@ -2,6 +2,7 @@ package handlers_test
 
 import (
 	"context"
+	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,6 +15,6 @@ func TestHandlers_Base_HealthcheckHandler(t *testing.T) {
 
 		resp := test.GET(ctx, "/healthcheck")
 
-		is.Equal(200, resp.Code)
+		is.Equal(http.StatusOK, resp.Code)
 	})
 }

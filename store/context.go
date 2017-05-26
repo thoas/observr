@@ -2,6 +2,8 @@ package store
 
 import (
 	"context"
+
+	"github.com/heetch/sqalx"
 )
 
 const key = "data"
@@ -15,6 +17,7 @@ type Store interface {
 	Close() error
 	Ping() error
 	Flush() error
+	Connection() sqalx.Node
 }
 
 // FromContext returns the Config associated with this context.

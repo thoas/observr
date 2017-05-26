@@ -8,14 +8,14 @@ import (
 )
 
 type Tag struct {
-	Id          string         `db:"id"`
+	ID          string         `db:"id"`
 	Key         string         `db:"key"`
 	Value       string         `db:"value"`
 	Data        sql.NullString `db:"data"`
 	CreatedAt   time.Time      `db:"created_at"`
 	FirstSeenAt pq.NullTime    `db:"first_seen_at"`
 	LastSeenAt  pq.NullTime    `db:"last_seen_at"`
-	ProjectId   string         `db:"project_id"`
+	ProjectID   string         `db:"project_id"`
 	Project     *Project       `db:"observr_project"`
 	SeenCount   time.Time      `db:"seen_count"`
 }
@@ -26,8 +26,8 @@ func (Tag) TableName() string {
 
 type VisitTag struct {
 	Id        string `db:"id"`
-	VisitId   string
-	TagId     string
+	VisitID   string
+	TagID     string
 	CreatedAt time.Time
 }
 
@@ -37,9 +37,9 @@ func (VisitTag) TableName() string {
 
 type GroupTag struct {
 	Id        string `db:"id"`
-	SrcTagId  string
+	SrcTagID  string
 	SrcTag    *Tag `db:"src_tag"`
-	DstTagId  string
+	DstTagID  string
 	DstTag    *Tag `db:"dst_tag"`
 	CreatedAt time.Time
 }

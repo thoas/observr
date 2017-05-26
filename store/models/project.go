@@ -7,7 +7,7 @@ import (
 )
 
 type Project struct {
-	Id        string      `db:"id"`
+	ID        string      `db:"id"`
 	Name      string      `db:"name"`
 	URL       string      `db:"url"`
 	ApiKey    string      `db:"api_key"`
