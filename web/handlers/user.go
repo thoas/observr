@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mholt/binding"
+
 	"github.com/thoas/observr/manager"
 	"github.com/thoas/observr/rpc/payloads"
 	"github.com/thoas/observr/rpc/resources"

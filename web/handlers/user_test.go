@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
 	"github.com/thoas/observr/store"
 	"github.com/thoas/observr/store/models"
 	"github.com/thoas/observr/test"

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/thoas/observr/configuration"
 	"github.com/thoas/observr/store"
 )
