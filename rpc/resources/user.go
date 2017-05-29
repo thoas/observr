@@ -4,8 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/thoas/observr/store/models"
 	"github.com/ulule/deepcopier"
+
+	"github.com/thoas/observr/store/models"
 )
 
 type User struct {

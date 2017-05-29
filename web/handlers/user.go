@@ -32,3 +32,11 @@ func UserCreate(c *gin.Context) error {
 
 	return nil
 }
+
+func ProjectCreate(c *gin.Context) error {
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "Ok",
+	})
+
+	return nil
+}

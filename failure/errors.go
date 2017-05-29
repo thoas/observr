@@ -40,3 +40,11 @@ func AlreadyExists(fields []string) error {
 
 	return ValidationError(errs)
 }
+
+func NotFoundError() error {
+	return HTTPError{
+		Status:  http.StatusNotFound,
+		Message: NotFoundErrorMessage,
+		Type:    "not_found",
+	}
+}

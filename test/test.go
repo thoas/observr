@@ -51,7 +51,12 @@ func Request(ctx context.Context, method string, url string, payload map[string]
 		if err != nil {
 			panic(err)
 		}
-		r, _ = http.NewRequest(method, url, bytes.NewBuffer(body))
+
+		r, err = http.NewRequest(method, url, bytes.NewBuffer(body))
+		if err != nil {
+			panic(err)
+		}
+
 		r.Header.Set("Content-Type", "application/json")
 	} else {
 		r, _ = http.NewRequest(method, url, nil)

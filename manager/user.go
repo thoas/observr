@@ -4,12 +4,12 @@ import (
 	"context"
 	"strings"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/thoas/observr/failure"
 	"github.com/thoas/observr/rpc/payloads"
 	"github.com/thoas/observr/store"
 	"github.com/thoas/observr/store/models"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 func CreateUser(ctx context.Context, payload *payloads.UserCreate) (*models.User, error) {
@@ -24,7 +24,9 @@ func CreateUser(ctx context.Context, payload *payloads.UserCreate) (*models.User
 		return nil, failure.AlreadyExists([]string{"email"})
 	}
 
-	exists, err = store.UsernameExists(ctx, payload.Username)
+	username := payload.Username
+
+	exists, err = store.UsernameExists(ctx, username)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +41,7 @@ func CreateUser(ctx context.Context, payload *payloads.UserCreate) (*models.User
 	}
 
 	user := &models.User{
-		Username: payload.Username,
+		Username: username,
 		Password: string(pwd),
 		Email:    email,
 	}

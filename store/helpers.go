@@ -20,12 +20,34 @@ func Sync(ctx context.Context, query string, obj interface{}) error {
 	}
 	defer stmt.Close()
 
-	// run query with obj values
-	// then override obj with returned value
 	err = stmt.Get(obj, obj)
 	if err != nil {
 		return errors.Wrap(err, "sqlx: cannot execute query")
 	}
 
 	return nil
+}
+
+func GetByParams(ctx context.Context, dest interface{}, query string, params map[string]interface{}) error {
+	strx := FromContext(ctx)
+
+	stmt, err := strx.Connection().PrepareNamed(query)
+	if err != nil {
+		return errors.Wrap(err, "sqlx: cannot prepare statement")
+	}
+
+	err = stmt.Get(dest, params)
+	if err != nil {
+		return errors.Wrap(err, "sqlx: cannot execute query")
+	}
+
+	return nil
+}
+
+func GetByID(ctx context.Context, dest interface{}, query string, id string) error {
+	args := map[string]interface{}{
+		"id": id,
+	}
+
+	return GetByParams(ctx, dest, query, args)
 }

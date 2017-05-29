@@ -8,8 +8,9 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/streadway/amqp"
-	"github.com/thoas/observr/configuration"
 	"github.com/ulule/amqpx"
+
+	"github.com/thoas/observr/configuration"
 )
 
 const (
@@ -226,15 +227,13 @@ func NewAMQPConsumer(ctx context.Context, pool amqpx.Pooler, queueName string, h
 		return nil, errors.Wrap(err, "cannot obtain server hostname")
 	}
 
-	consumer := &AMQPConsumer{
+	return &AMQPConsumer{
 		Channel:   channel,
 		Handler:   handler,
 		QueueName: queue.Name,
 		Consumer:  fmt.Sprintf("consumer-%s#%d@%s", queue.Name, os.Getpid(), hostname),
 		done:      make(chan error),
-	}
-
-	return consumer, nil
+	}, nil
 }
 
 // Start launch events listening

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/thoas/observr/configuration"
 	"github.com/thoas/observr/failure"
 	"github.com/thoas/observr/web/handlers"
@@ -19,9 +20,14 @@ func Routes(ctx context.Context) (*gin.Engine, error) {
 
 	r := gin.Default()
 	r.Use(middlewares.Application(ctx))
+	r.Use(middlewares.APIKey(ctx))
 
 	r.GET("/healthcheck", failure.HandleError(handlers.Healthcheck))
 	r.POST("/users", failure.HandleError(handlers.UserCreate))
+
+	userResource := handlers.UserResource()
+
+	r.POST("/users/:id/projects", userResource, failure.HandleError(handlers.ProjectCreate))
 
 	return r, nil
 }

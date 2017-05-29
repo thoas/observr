@@ -1,9 +1,12 @@
 package failure
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/mholt/binding"
 	"github.com/pkg/errors"
+	"github.com/thoas/observr/store"
 )
 
 func HandleError(handler func(*gin.Context) error) gin.HandlerFunc {
@@ -25,17 +28,18 @@ func wrapError(err error) error {
 		return ValidationError(e)
 	}
 
-	return nil
+	return err
 }
 
 func ProcessError(c *gin.Context, err error) {
-	// add error in the Context (automatic log)
-	c.Error(err)
-
 	cause := wrapError(errors.Cause(err))
 
 	switch e := cause.(type) {
 	case HTTPError:
 		c.JSON(e.Status, e)
+	default:
+		if store.IsErrNoRows(cause) {
+			c.JSON(http.StatusNotFound, "resource not found")
+		}
 	}
 }

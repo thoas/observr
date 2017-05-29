@@ -9,6 +9,7 @@ import (
 	"github.com/heetch/sqalx"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
+
 	"github.com/thoas/observr/configuration"
 	"github.com/thoas/observr/store/models"
 )
