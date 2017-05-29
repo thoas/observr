@@ -35,7 +35,7 @@ func ProcessError(c *gin.Context, err error) {
 	cause := wrapError(errors.Cause(err))
 
 	switch e := cause.(type) {
-	case HttpError:
+	case HTTPError:
 		c.JSON(e.Status, e)
 	}
 }

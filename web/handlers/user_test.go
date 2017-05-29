@@ -22,7 +22,7 @@ func TestHandlers_User_UserCreateHandler(t *testing.T) {
 		is.Equal(http.StatusUnsupportedMediaType, resp.Code)
 
 		resp = test.POST(ctx, "/users", map[string]interface{}{
-			"username": "thoas",
+			"username": "foo",
 			"email":    "foo@bar.com",
 			"password": "$ecret",
 		})

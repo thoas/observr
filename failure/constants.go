@@ -1,5 +1,6 @@
 package failure
 
 const (
-	ValidationFailed = "Validation Failed"
+	ValidationFailedMessage = "Validation Failed"
+	AlreadyExistsMessage    = "Already exists"
 )

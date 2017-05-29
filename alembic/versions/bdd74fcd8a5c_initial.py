@@ -21,8 +21,8 @@ from sqlalchemy.dialects.postgresql import UUID, JSON
 def upgrade():
     op.create_table('observr_user',
         sa.Column('id', UUID, primary_key=True),
-        sa.Column('username', sa.String(255), nullable=False),
-        sa.Column('email', sa.String(255), nullable=False),
+        sa.Column('username', sa.String(255), unique=True, nullable=False),
+        sa.Column('email', sa.String(255), unique=True, nullable=False),
         sa.Column('password', sa.String(255), nullable=False),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
@@ -33,7 +33,7 @@ def upgrade():
         sa.Column('id', UUID, primary_key=True),
         sa.Column('name', sa.String(255), nullable=False),
         sa.Column('url', sa.String(2048), nullable=False),
-        sa.Column('api_key', sa.String(255), nullable=False),
+        sa.Column('api_key', sa.String(255), unique=True, nullable=False),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
         sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
@@ -60,7 +60,7 @@ def upgrade():
 
     op.create_table('observr_tag',
         sa.Column('id', UUID, primary_key=True),
-        sa.Column('key', sa.String(255), nullable=False),
+        sa.Column('key', sa.String(255), unique=True, nullable=False),
         sa.Column('value', sa.Text, nullable=False),
         sa.Column('data', sa.Text, nullable=False),
         sa.Column('seen_count', sa.Integer, nullable=False, server_default="0"),

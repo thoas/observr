@@ -6,7 +6,7 @@ import (
 	"github.com/mholt/binding"
 )
 
-type HttpError struct {
+type HTTPError struct {
 	Status  int            `json:"-"`
 	Message interface{}    `json:"message"`
 	Type    string         `json:"type,omitempty"`
@@ -14,7 +14,7 @@ type HttpError struct {
 	Errors  binding.Errors `json:"errors,omitempty"`
 }
 
-func (e HttpError) Error() string {
+func (e HTTPError) Error() string {
 	return e.Message.(string)
 }
 
@@ -25,10 +25,18 @@ func ValidationError(errs binding.Errors) error {
 		code = http.StatusUnsupportedMediaType
 	}
 
-	return HttpError{
+	return HTTPError{
 		Status:  code,
-		Message: ValidationFailed,
+		Message: ValidationFailedMessage,
 		Errors:  errs,
 		Type:    "validation_failed",
 	}
+}
+
+// AlreadyExists on duplicate resources.
+func AlreadyExists(fields []string) error {
+	errs := binding.Errors{}
+	errs.Add(fields, "AlreadyExistsError", AlreadyExistsMessage)
+
+	return ValidationError(errs)
 }
