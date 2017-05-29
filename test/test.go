@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
 
 	"github.com/thoas/observr/application"
+	"github.com/thoas/observr/store/models"
 	"github.com/thoas/observr/web"
 )
 
@@ -27,39 +29,59 @@ func Setup(fn func(ctx context.Context)) {
 	}
 }
 
-func GET(ctx context.Context, url string) *httptest.ResponseRecorder {
-	return Request(ctx, "GET", url, nil)
+type Request struct {
+	Method  string
+	URL     string
+	Data    map[string]interface{}
+	Headers map[string]interface{}
+	User    *models.User
 }
 
-func POST(ctx context.Context, url string, payload map[string]interface{}) *httptest.ResponseRecorder {
-	return Request(ctx, "POST", url, payload)
+func GET(ctx context.Context, req *Request) *httptest.ResponseRecorder {
+	req.Method = "GET"
+
+	return request(ctx, req)
 }
 
-func PATCH(ctx context.Context, url string, payload map[string]interface{}) *httptest.ResponseRecorder {
-	return Request(ctx, "PATCH", url, payload)
+func POST(ctx context.Context, req *Request) *httptest.ResponseRecorder {
+	req.Method = "POST"
+
+	return request(ctx, req)
 }
 
-func DELETE(ctx context.Context, url string) *httptest.ResponseRecorder {
-	return Request(ctx, "DELETE", url, nil)
+func PATCH(ctx context.Context, req *Request) *httptest.ResponseRecorder {
+	req.Method = "PATCH"
+
+	return request(ctx, req)
 }
 
-func Request(ctx context.Context, method string, url string, payload map[string]interface{}) *httptest.ResponseRecorder {
+func DELETE(ctx context.Context, req *Request) *httptest.ResponseRecorder {
+	req.Method = "DELETE"
+
+	return request(ctx, req)
+}
+
+func request(ctx context.Context, req *Request) *httptest.ResponseRecorder {
 	var r *http.Request
 
-	if payload != nil {
-		body, err := json.Marshal(&payload)
+	if req.Data != nil {
+		body, err := json.Marshal(&req.Data)
 		if err != nil {
 			panic(err)
 		}
 
-		r, err = http.NewRequest(method, url, bytes.NewBuffer(body))
+		r, err = http.NewRequest(req.Method, req.URL, bytes.NewBuffer(body))
 		if err != nil {
 			panic(err)
 		}
 
 		r.Header.Set("Content-Type", "application/json")
 	} else {
-		r, _ = http.NewRequest(method, url, nil)
+		r, _ = http.NewRequest(req.Method, req.URL, nil)
+	}
+
+	if req.User != nil {
+		r.Header.Set("Authorization", fmt.Sprintf("ApiKey %s", req.User.ApiKey))
 	}
 
 	w := httptest.NewRecorder()

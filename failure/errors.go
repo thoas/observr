@@ -48,3 +48,11 @@ func NotFoundError() error {
 		Type:    "not_found",
 	}
 }
+
+func PermissionError() error {
+	return HTTPError{
+		Status:  http.StatusUnauthorized,
+		Message: PermissionDeniedMessage,
+		Type:    "permission_denied",
+	}
+}

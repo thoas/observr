@@ -22,12 +22,21 @@ func Routes(ctx context.Context) (*gin.Engine, error) {
 	r.Use(middlewares.Application(ctx))
 	r.Use(middlewares.APIKey(ctx))
 
-	r.GET("/healthcheck", failure.HandleError(handlers.Healthcheck))
-	r.POST("/users", failure.HandleError(handlers.UserCreate))
+	r.GET(
+		"/healthcheck",
+		failure.HandleError(handlers.Healthcheck))
+	r.POST(
+		"/users",
+		failure.HandleError(handlers.UserCreate))
 
 	userResource := handlers.UserResource()
+	auth := handlers.RequiredAuth()
 
-	r.POST("/users/:id/projects", userResource, failure.HandleError(handlers.ProjectCreate))
+	r.POST(
+		"/users/:id/projects",
+		userResource,
+		auth,
+		failure.HandleError(handlers.ProjectCreate))
 
 	return r, nil
 }

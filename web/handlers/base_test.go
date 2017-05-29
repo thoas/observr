@@ -13,7 +13,7 @@ func TestHandlers_Base_HealthcheckHandler(t *testing.T) {
 	test.Setup(func(ctx context.Context) {
 		is := require.New(t)
 
-		resp := test.GET(ctx, "/healthcheck")
+		resp := test.GET(ctx, &test.Request{URL: "/healthcheck"})
 
 		is.Equal(http.StatusOK, resp.Code)
 	})

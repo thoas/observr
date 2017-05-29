@@ -29,7 +29,7 @@ func APIKey(ctx context.Context) gin.HandlerFunc {
 			if len(parts) == 2 && strings.ToLower(parts[0]) == "apikey" {
 				user, err := store.GetUserByAPIKey(c, parts[1])
 
-				if err == nil {
+				if err != nil {
 					c.AbortWithStatus(http.StatusUnauthorized)
 					return
 				}

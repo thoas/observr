@@ -25,3 +25,15 @@ func UserResource() gin.HandlerFunc {
 		return nil
 	})
 }
+
+func RequiredAuth() gin.HandlerFunc {
+	return failure.HandleError(func(c *gin.Context) error {
+		_, exists := c.Get("user")
+
+		if !exists {
+			return errors.Wrap(failure.PermissionError(), "user not authenticated")
+		}
+
+		return nil
+	})
+}

@@ -69,7 +69,9 @@ func GetUserByID(ctx context.Context, id string) (*models.User, error) {
 func GetUserByAPIKey(ctx context.Context, apiKey string) (*models.User, error) {
 	user := &models.User{}
 
-	err := GetByID(ctx, user, usersGetByAPIKeyQuery, apiKey)
+	err := GetByParams(ctx, user, usersGetByAPIKeyQuery, map[string]interface{}{
+		"api_key": apiKey,
+	})
 	if err != nil {
 		return nil, err
 	}

@@ -8,6 +8,7 @@ import (
 	"github.com/thoas/observr/manager"
 	"github.com/thoas/observr/rpc/payloads"
 	"github.com/thoas/observr/rpc/resources"
+	"github.com/thoas/observr/store/models"
 )
 
 func UserCreate(c *gin.Context) error {
@@ -34,9 +35,26 @@ func UserCreate(c *gin.Context) error {
 }
 
 func ProjectCreate(c *gin.Context) error {
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "Ok",
-	})
+	var payload payloads.ProjectCreate
+	user := c.MustGet("user").(*models.User)
+
+	errs := binding.Bind(c.Request, &payload)
+
+	if errs != nil {
+		return errs
+	}
+
+	project, err := manager.CreateProject(c, &payload, user)
+	if err != nil {
+		return err
+	}
+
+	resource, err := resources.NewProject(c, project)
+	if err != nil {
+		return err
+	}
+
+	c.JSON(http.StatusCreated, resource)
 
 	return nil
 }
