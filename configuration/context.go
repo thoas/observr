@@ -16,12 +16,6 @@ func FromContext(c context.Context) Configuration {
 	return c.Value(key).(Configuration)
 }
 
-// ToContext adds the Config to this context if it supports
-// the Setter interface.
-func ToContext(c Setter, cfg Configuration) {
-	c.Set(key, cfg)
-}
-
 func NewContext(ctx context.Context, cfg Configuration) context.Context {
 	return context.WithValue(ctx, key, cfg)
 }

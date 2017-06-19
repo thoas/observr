@@ -79,7 +79,6 @@ func request(ctx context.Context, req *Request) *httptest.ResponseRecorder {
 	} else {
 		r, _ = http.NewRequest(req.Method, req.URL, nil)
 	}
-
 	if req.User != nil {
 		r.Header.Set("Authorization", fmt.Sprintf("ApiKey %s", req.User.ApiKey))
 	}

@@ -3,8 +3,8 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/mholt/binding"
+	"github.com/pressly/chi/render"
 
 	"github.com/thoas/observr/manager"
 	"github.com/thoas/observr/rpc/payloads"
@@ -12,50 +12,57 @@ import (
 	"github.com/thoas/observr/store/models"
 )
 
-func UserCreate(c *gin.Context) error {
+func UserCreate(w http.ResponseWriter, r *http.Request) error {
 	var payload payloads.UserCreate
 
-	errs := binding.Bind(c.Request, &payload)
+	errs := binding.Bind(r, &payload)
 	if errs != nil {
 		return errs
 	}
 
-	user, err := manager.CreateUser(c, &payload)
+	ctx := r.Context()
+
+	user, err := manager.CreateUser(ctx, &payload)
 	if err != nil {
 		return err
 	}
 
-	resource, err := resources.NewUser(c, user)
+	resource, err := resources.NewUser(ctx, user)
 	if err != nil {
 		return err
 	}
 
-	c.JSON(http.StatusCreated, resource)
+	render.Status(r, http.StatusCreated)
+	render.JSON(w, r, resource)
 
 	return nil
 }
 
-func ProjectCreate(c *gin.Context) error {
+func ProjectCreate(w http.ResponseWriter, r *http.Request) error {
 	var payload payloads.ProjectCreate
-	user := c.MustGet("user").(*models.User)
 
-	errs := binding.Bind(c.Request, &payload)
+	errs := binding.Bind(r, &payload)
 
 	if errs != nil {
 		return errs
 	}
 
-	project, err := manager.CreateProject(c, &payload, user)
+	ctx := r.Context()
+
+	user := ctx.Value("user").(*models.User)
+
+	project, err := manager.CreateProject(ctx, &payload, user)
 	if err != nil {
 		return err
 	}
 
-	resource, err := resources.NewProject(c, project)
+	resource, err := resources.NewProject(ctx, project)
 	if err != nil {
 		return err
 	}
 
-	c.JSON(http.StatusCreated, resource)
+	render.Status(r, http.StatusCreated)
+	render.JSON(w, r, resource)
 
 	return nil
 }

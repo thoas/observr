@@ -3,22 +3,22 @@ package failure
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/mholt/binding"
 	"github.com/pkg/errors"
+	"github.com/pressly/chi/render"
 	"github.com/thoas/observr/store"
 )
 
-func HandleError(handler func(*gin.Context) error) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		err := handler(c)
+type HandlerFunc func(w http.ResponseWriter, r *http.Request) error
+
+func HandleError(handler HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		err := handler(w, r)
+
 		if err != nil {
-			ProcessError(c, err)
-			c.Abort()
+			ProcessError(w, r, err)
 			return
 		}
-
-		c.Next()
 	}
 }
 
@@ -31,15 +31,17 @@ func wrapError(err error) error {
 	return err
 }
 
-func ProcessError(c *gin.Context, err error) {
+func ProcessError(w http.ResponseWriter, r *http.Request, err error) {
 	cause := wrapError(errors.Cause(err))
 
 	switch e := cause.(type) {
 	case HTTPError:
-		c.JSON(e.Status, e)
+		render.Status(r, e.Status)
+		render.JSON(w, r, e)
 	default:
 		if store.IsErrNoRows(cause) {
-			c.JSON(http.StatusNotFound, "resource not found")
+			render.Status(r, http.StatusNotFound)
+			render.JSON(w, r, map[string]string{"message": "resource not found"})
 		}
 	}
 }

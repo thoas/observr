@@ -5,43 +5,47 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gin-gonic/gin"
-
 	"github.com/thoas/observr/configuration"
 	"github.com/thoas/observr/store"
 )
 
-func Application(ctx context.Context) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		configuration.ToContext(c, configuration.FromContext(ctx))
-		store.ToContext(c, store.FromContext(ctx))
+func Application(appctx context.Context) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
 
-		c.Next()
+			ctx = configuration.NewContext(ctx, configuration.FromContext(appctx))
+			ctx = store.NewContext(ctx, store.FromContext(appctx))
+
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
 	}
+
 }
 
-func APIKey(ctx context.Context) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		header := c.Request.Header.Get("Authorization")
+func APIKey(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		header := r.Header.Get("Authorization")
+		ctx := r.Context()
 
 		if header != "" {
 			parts := strings.Split(header, " ")
 
 			if len(parts) == 2 && strings.ToLower(parts[0]) == "apikey" {
-				user, err := store.GetUserByAPIKey(c, parts[1])
+				user, err := store.GetUserByAPIKey(ctx, parts[1])
 
 				if err != nil {
-					c.AbortWithStatus(http.StatusUnauthorized)
+					http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 					return
 				}
 
-				c.Set("user", user)
+				ctx = context.WithValue(ctx, "user", user)
 			} else {
-				c.AbortWithStatus(http.StatusUnauthorized)
+				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 				return
 			}
 		}
 
-		c.Next()
-	}
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }

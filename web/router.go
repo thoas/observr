@@ -3,40 +3,34 @@ package web
 import (
 	"context"
 
-	"github.com/gin-gonic/gin"
+	"github.com/pressly/chi"
+	"github.com/pressly/chi/middleware"
 
-	"github.com/thoas/observr/configuration"
 	"github.com/thoas/observr/failure"
 	"github.com/thoas/observr/web/handlers"
 	"github.com/thoas/observr/web/middlewares"
 )
 
-func Routes(ctx context.Context) (*gin.Engine, error) {
-	cfg := configuration.FromContext(ctx)
+func Routes(ctx context.Context) (*chi.Mux, error) {
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
 
-	if !cfg.Server.Debug {
-		gin.SetMode(gin.ReleaseMode)
-	}
-
-	r := gin.Default()
 	r.Use(middlewares.Application(ctx))
-	r.Use(middlewares.APIKey(ctx))
+	r.Use(middlewares.APIKey)
 
-	r.GET(
+	r.Get(
 		"/healthcheck",
 		failure.HandleError(handlers.Healthcheck))
-	r.POST(
+	r.Post(
 		"/users",
 		failure.HandleError(handlers.UserCreate))
 
-	userResource := handlers.UserResource()
-	auth := handlers.RequiredAuth()
-
-	r.POST(
-		"/users/:id/projects",
-		userResource,
-		auth,
-		failure.HandleError(handlers.ProjectCreate))
+	r.Route("/users/:id", func(r chi.Router) {
+		r.Use(handlers.RequireAuth, handlers.UserResource)
+		r.Post(
+			"/projects",
+			failure.HandleError(handlers.ProjectCreate))
+	})
 
 	return r, nil
 }

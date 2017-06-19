@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/thoas/observr/configuration"
 )
@@ -16,5 +17,5 @@ func Run(ctx context.Context) error {
 		return err
 	}
 
-	return r.Run(fmt.Sprintf(":%d", cfg.Server.Port))
+	return http.ListenAndServe(fmt.Sprintf(":%d", cfg.Server.Port), r)
 }

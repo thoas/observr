@@ -19,7 +19,7 @@ func TestHandlers_User_UserCreateHandler(t *testing.T) {
 
 		resp := test.GET(ctx, &test.Request{URL: "/users"})
 
-		is.Equal(http.StatusNotFound, resp.Code)
+		is.Equal(http.StatusMethodNotAllowed, resp.Code)
 
 		resp = test.POST(ctx, &test.Request{URL: "/users"})
 
@@ -43,7 +43,7 @@ func TestHandlers_User_ProjectCreateHandler(t *testing.T) {
 			"name": "Ulule",
 		}})
 
-		is.Equal(http.StatusNotFound, resp.Code)
+		is.Equal(http.StatusUnauthorized, resp.Code)
 
 		u := &models.User{
 			Username: "thoas",

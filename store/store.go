@@ -28,6 +28,7 @@ func NewDataStore(cfg configuration.Data) (*DataStore, error) {
 	dbx.SetMaxOpenConns(cfg.MaxOpenConnections)
 
 	node, err := sqalx.New(dbx)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot instantiate postgres client driver")
 	}

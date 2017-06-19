@@ -3,11 +3,12 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/pressly/chi/render"
 )
 
-func Healthcheck(c *gin.Context) error {
-	c.JSON(http.StatusOK, gin.H{
+func Healthcheck(w http.ResponseWriter, r *http.Request) error {
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, map[string]string{
 		"message": "Ok",
 	})
 
